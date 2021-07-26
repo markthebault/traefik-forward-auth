@@ -10,9 +10,10 @@ import (
 
 // OIDC provider
 type OIDC struct {
-	IssuerURL    string `long:"issuer-url" env:"ISSUER_URL" description:"Issuer URL"`
-	ClientID     string `long:"client-id" env:"CLIENT_ID" description:"Client ID"`
-	ClientSecret string `long:"client-secret" env:"CLIENT_SECRET" description:"Client Secret" json:"-"`
+	IssuerURL    string   `long:"issuer-url" env:"ISSUER_URL" description:"Issuer URL"`
+	ClientID     string   `long:"client-id" env:"CLIENT_ID" description:"Client ID"`
+	ClientSecret string   `long:"client-secret" env:"CLIENT_SECRET" description:"Client Secret" json:"-"`
+	Scopes       []string `long:"scope" env:"SCOPE" env-delim:"," default:"openid" default:"profile" default:"email" description:"Scopes"`
 
 	OAuthProvider
 
@@ -46,9 +47,7 @@ func (o *OIDC) Setup() error {
 		ClientID:     o.ClientID,
 		ClientSecret: o.ClientSecret,
 		Endpoint:     o.provider.Endpoint(),
-
-		// "openid" is a required scope for OpenID Connect flows.
-		Scopes: []string{oidc.ScopeOpenID, "profile", "email"},
+		Scopes:        o.Scopes,
 	}
 
 	// Create OIDC verifier
