@@ -185,12 +185,33 @@ func (s *Server) AuthCallbackHandler() http.HandlerFunc {
 			return
 		}
 
+		//check if the user in the allowed groups:
+		if config.EnableGroupFilter {
+			logger.WithFields(logrus.Fields{
+				"allowed_groups": config.AllowedGroups,
+				"user_groups":    user.Groups,
+				"user_email":     user.Email,
+			}).Info("Group filter enabled")
+
+			_, found := Find(user.Groups, config.AllowedGroups)
+			if !found {
+				logger.WithFields(logrus.Fields{
+					"allowed_groups": config.AllowedGroups,
+					"user_groups":    user.Groups,
+					"user_email":     user.Email,
+				}).Warn("User tries to log in without having the requested group")
+				http.Error(w, "FORBIDDEN: User does not belong to the provided groups", 403)
+				return
+			}
+		}
+
 		// Generate cookie
 		http.SetCookie(w, MakeCookie(r, user.Email))
 		logger.WithFields(logrus.Fields{
 			"provider": providerName,
 			"redirect": redirect,
 			"user":     user.Email,
+			"groups":   user.Groups,
 		}).Info("Successfully generated auth cookie, redirecting user.")
 
 		// Redirect
@@ -262,4 +283,16 @@ func (s *Server) logger(r *http.Request, handler, rule, msg string) *logrus.Entr
 	}).Debug(msg)
 
 	return logger
+}
+
+//Find at least on element in the vals in slice
+func Find(slice []string, vals []string) (int, bool) {
+	for i, item := range slice {
+		for j, key := range vals {
+			if key == item {
+				return i + j*0, true
+			}
+		}
+	}
+	return -1, false
 }

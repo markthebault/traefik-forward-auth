@@ -52,7 +52,6 @@ func TestOIDCGetLoginURL(t *testing.T) {
 		"client_id":     []string{"idtest"},
 		"redirect_uri":  []string{"http://example.com/_oauth"},
 		"response_type": []string{"code"},
-		"scope":         []string{"openid profile email"},
 		"state":         []string{"state"},
 	}
 	assert.Equal(expectedQs, qs)
@@ -78,7 +77,6 @@ func TestOIDCGetLoginURL(t *testing.T) {
 		"client_id":     []string{"idtest"},
 		"redirect_uri":  []string{"http://example.com/_oauth"},
 		"response_type": []string{"code"},
-		"scope":         []string{"openid profile email"},
 		"state":         []string{"state"},
 		"resource":      []string{"resourcetest"},
 	}
