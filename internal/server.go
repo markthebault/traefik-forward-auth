@@ -200,7 +200,8 @@ func (s *Server) AuthCallbackHandler() http.HandlerFunc {
 					"user_groups":    user.Groups,
 					"user_email":     user.Email,
 				}).Warn("User tries to log in without having the requested group")
-				http.Error(w, "FORBIDDEN: User is not in the correct group", 403)
+				http.Error(w, "FORBIDDEN: User does not belong to the provided groups", 403)
+				return
 			}
 		}
 
